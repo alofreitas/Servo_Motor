@@ -1,0 +1,23 @@
+{
+    "version": 1,
+    "author": "Ana Luiza Oliveira de Freitas",
+    "editor": "wokwi",
+    "parts": [
+      {
+        "type": "board-pi-pico-w",
+        "id": "pico",
+        "top": 0,
+        "left": 0,
+        "attrs": { "builder": "pico-sdk" }
+      },
+      { "type": "wokwi-servo", "id": "servo1", "top": 17.2, "left": 144, "attrs": {} }
+    ],
+    "connections": [
+      [ "pico:GP0", "$serialMonitor:RX", "", [] ],
+      [ "pico:GP1", "$serialMonitor:TX", "", [] ],
+      [ "pico:GND.8", "servo1:GND", "black", [ "h51.86", "v54.35" ] ],
+      [ "pico:3V3", "servo1:V+", "orange", [ "h42.26", "v44.75" ] ],
+      [ "pico:GP22", "servo1:PWM", "blue", [ "h42.26", "v-41.65" ] ]
+    ],
+    "dependencies": {}
+  }
