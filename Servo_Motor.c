@@ -5,7 +5,7 @@
 #include "hardware/pwm.h"
 
 // Definição do pino do PWM
-#define GPIO_PWM 22
+#define PWM_LED 12
 #define WRAP_PERIOD 20000 // valor máx do contador wrap - 20 ms
 #define DUTY_CYCLE_MAX 2400 
 #define DUTY_CYCLE_MIN 500
@@ -23,8 +23,8 @@ Função para configurar o PWM
 */
 void configurar_pwm()
 {
-    gpio_set_function(GPIO_PWM, GPIO_FUNC_PWM); // habilitar o pino GPIO como PWM
-    uint slice_num = pwm_gpio_to_slice_num(GPIO_PWM);
+    gpio_set_function(PWM_LED, GPIO_FUNC_PWM); // habilitar o pino GPIO como PWM
+    uint slice_num = pwm_gpio_to_slice_num(PWM_LED);
     pwm_set_wrap(slice_num, WRAP_PERIOD);
     pwm_set_clkdiv(slice_num, PWM_DIVISOR);
     pwm_set_enabled(slice_num, true);
@@ -33,13 +33,13 @@ void configurar_pwm()
 // Função para definir o duty cycle do PWM
 void setar_duty_cycle(uint slice_num, uint16_t duty_cycle)
 {
-    pwm_set_gpio_level(GPIO_PWM, duty_cycle);
+    pwm_set_gpio_level(PWM_LED, duty_cycle);
 }
 
 // Função para mover o servo motor
 void mover_servo_motor(uint16_t angulo)
 {
-    uint slice_num = pwm_gpio_to_slice_num(GPIO_PWM);
+    uint slice_num = pwm_gpio_to_slice_num(PWM_LED);
 
     // Mapeia o ângulo para o ciclo de trabalho do PWM
     uint16_t duty_cycle = (angulo * (DUTY_CYCLE_MAX - DUTY_CYCLE_MIN) / 180) + 500;
@@ -61,7 +61,7 @@ int main()
     mover_servo_motor(0);
 
     uint duty_cycle = 500;
-    uint up_down = 1;
+    uint up_down = 1; // variável para controlar o movimento
 
     // Movimento suave do servo motor
     while (true) {
@@ -76,7 +76,7 @@ int main()
                 up_down = 1;
             }
         }
-        setar_duty_cycle(pwm_gpio_to_slice_num(GPIO_PWM), duty_cycle);
+        setar_duty_cycle(pwm_gpio_to_slice_num(PWM_LED), duty_cycle);
         sleep_ms(10);
     }
     return 0;
