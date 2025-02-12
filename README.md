@@ -1,5 +1,8 @@
 # Projeto envolvendo Servo Motor - EMBARCATECH
 
+## Link do vídeo
+https://drive.google.com/file/d/1nzT8B2mhCvPE-bNcQtR89rZ6QL4X0PfM/view?usp=sharing
+
 ## Descrição
 Este programa permite controlar um servo motor usando a placa Raspberry Pi Pico. Ele utiliza o protocolo PWM (Pulse Width Modulation) para ajustar o ângulo do servo motor. O programa move o servo para três posições fixas (0°, 90° e 180°) e, em seguida, entra em um loop onde faz movimentos suaves entre as extremidades.
 
