@@ -4,9 +4,13 @@
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
 
-// Definição do pino do PWM e do WRAP para 20 ms (20000)
-#define GPIO_PWM 22 
-#define PWM_WRAP 20000 
+// Definição do pino do PWM
+#define GPIO_PWM 22
+#define WRAP_PERIOD 20000 // valor máx do contador wrap - 20 ms
+#define DUTY_CYCLE_MAX 2400 
+#define DUTY_CYCLE_MIN 500
+
+const float PWM_DIVISOR = 125.0;
 
 // Função para configurar o PWM
 /*
@@ -17,53 +21,63 @@ Função para configurar o PWM
 4 -> Seta o divisor de clock do PWM
 5 -> Habilita o PWM
 */
-void configurar_pwm() {
-    gpio_set_function(GPIO_PWM, GPIO_FUNC_PWM); 
-    uint slice_num = pwm_gpio_to_slice_num(GPIO_PWM); 
-    pwm_set_wrap(slice_num, PWM_WRAP); 
-    pwm_set_clkdiv(slice_num, 125.0f); 
-    pwm_set_enabled(slice_num, true); 
+void configurar_pwm()
+{
+    gpio_set_function(GPIO_PWM, GPIO_FUNC_PWM); // habilitar o pino GPIO como PWM
+    uint slice_num = pwm_gpio_to_slice_num(GPIO_PWM);
+    pwm_set_wrap(slice_num, WRAP_PERIOD);
+    pwm_set_clkdiv(slice_num, PWM_DIVISOR);
+    pwm_set_enabled(slice_num, true);
 }
 
-// Função para setar o duty cycle do PWM
-void setar_duty_cycle(uint slice_num, uint16_t duty_cycle) {
+// Função para definir o duty cycle do PWM
+void setar_duty_cycle(uint slice_num, uint16_t duty_cycle)
+{
     pwm_set_gpio_level(GPIO_PWM, duty_cycle);
 }
 
 // Função para mover o servo motor
-void mover_servo_motor(uint16_t angulo) {
+void mover_servo_motor(uint16_t angulo)
+{
     uint slice_num = pwm_gpio_to_slice_num(GPIO_PWM);
-    
+
     // Mapeia o ângulo para o ciclo de trabalho do PWM
-    uint16_t duty_cycle = (angulo * (2400 - 500) / 180) + 500;
-    
+    uint16_t duty_cycle = (angulo * (DUTY_CYCLE_MAX - DUTY_CYCLE_MIN) / 180) + 500;
+
     setar_duty_cycle(slice_num, duty_cycle);
     sleep_ms(5000); // Aguarda 5 segundos
 }
 
-
-int main() {
+int main()
+{
 
     // Inicializa a comunicação serial e configura o pwm
     stdio_init_all();
-    configurar_pwm(); 
+    configurar_pwm();
 
     // Move o servo motor para os angulos determinados no parâmetro da função
     mover_servo_motor(180);
     mover_servo_motor(90);
     mover_servo_motor(0);
 
-    // Laço for para o servo motor fazer movimentos suaves
+    uint duty_cycle = 500;
+    uint up_down = 1;
+
+    // Movimento suave do servo motor
     while (true) {
-        for (uint16_t duty_cycle = 500; duty_cycle <= 2400; duty_cycle += 5) {
-            setar_duty_cycle(pwm_gpio_to_slice_num(GPIO_PWM), duty_cycle);
-            sleep_ms(10);
+        if (up_down) {
+            duty_cycle += 5;
+            if (duty_cycle >= DUTY_CYCLE_MAX) {
+                up_down = 0;
+            }
+        } else {
+            duty_cycle -= 5;
+            if (duty_cycle <= DUTY_CYCLE_MIN){
+                up_down = 1;
+            }
         }
-        for (uint16_t duty_cycle = 2400; duty_cycle >= 500; duty_cycle -= 5) {
-            setar_duty_cycle(pwm_gpio_to_slice_num(GPIO_PWM), duty_cycle);
-            sleep_ms(10);
-        }
+        setar_duty_cycle(pwm_gpio_to_slice_num(GPIO_PWM), duty_cycle);
+        sleep_ms(10);
     }
-        
     return 0;
 }
