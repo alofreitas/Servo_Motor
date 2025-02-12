@@ -76,7 +76,7 @@ int main()
                 up_down = 1;
             }
         }
-        setar_duty_cycle(pwm_gpio_to_slice_num(PWM_LED), duty_cycle);
+        setar_duty_cycle(pwm_gpio_to_slice_num(PWM_LED), duty_cycle / 10);
         sleep_ms(10);
     }
     return 0;
